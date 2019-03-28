@@ -2,7 +2,7 @@
 
 > 多关键字高亮的 react 组件，正则关键字也能高亮
 
-## How To Use
+# How To Use
 
 ```jsx
 import React from 'react';
@@ -18,3 +18,5 @@ render(
   document.getElementById('app'),
 );
 ```
+# run effect
+https://github.com/lth707/KeywordsHighLight/blob/master/%E8%BF%90%E8%A1%8C%E6%95%88%E6%9E%9C.png
