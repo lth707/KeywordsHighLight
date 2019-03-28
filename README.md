@@ -3,7 +3,7 @@
 > 多关键字高亮的 react 组件，正则关键字也能高亮
 
 # How To Use
-npm install -S keywordshighlight
+npm install -S keywordhighlight
 ```jsx
 import React from 'react';
 import { render } from 'react-dom';
