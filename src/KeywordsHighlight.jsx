@@ -13,7 +13,7 @@ const HighLightItem = ({
     }}
   >
     {typeof highlightStr.render === 'function'
-      ? highlightStr.render()
+      ? highlightStr.render(highlightStr.keyword, highlightStr)
       : highlightStr.keyword || highlightStr}
   </span>
 );

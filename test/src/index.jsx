@@ -10,7 +10,10 @@ render(
       '替换',
       {
         keyword: '查找',
-        render: () => <span style={{ color: 'yellow' }}>查找</span>,
+        style: { fontWeight: 700 },
+        render: (text, item) => (
+          <span style={{ ...item.style, color: 'yellow' }}>{text}</span>
+        ),
       },
       { keyword: 'regexp' },
       { keyword: '$', highlightColor: 'red', style: { fontWeight: 700 } },
