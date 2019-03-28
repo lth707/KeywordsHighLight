@@ -19,17 +19,21 @@ render(
       '替换',
       {
         keyword: '查找',
-        render: () => <span style={{ color: 'yellow' }}>查找</span>,
+        style: { fontWeight: 700 },
+        render: (text, item) => (
+          <span style={{ ...item.style, color: 'yellow' }}>{text}</span>
+        ),
       },
       { keyword: 'regexp' },
       { keyword: '$', highlightColor: 'red', style: { fontWeight: 700 } },
     ]}
   />,
-  document.getElementById('app'),
+  document.getElementById('app')
 );
-
 ```
+
 # params
+
 ```jsx
 KeywordsHighlight.propTypes = {
   str: PropTypes.string,
@@ -43,9 +47,9 @@ KeywordsHighlight.propTypes = {
           style: PropTypes.shape({}),
           className: PropTypes.string,
           render: PropTypes.func,
-        }),
+        })
       ),
-    ]),
+    ])
   ),
   highlightClassName: PropTypes.string,
   normalClassName: PropTypes.string,
@@ -62,6 +66,7 @@ KeywordsHighlight.defaultProps = {
   highlightColor: '#00c1de',
 };
 ```
+
 # run effect
 
 ![run effect](https://github.com/lth707/KeywordsHighLight/blob/master/%E8%BF%90%E8%A1%8C%E6%95%88%E6%9E%9C.png)
