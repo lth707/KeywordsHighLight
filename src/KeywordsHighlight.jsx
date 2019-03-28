@@ -1,16 +1,37 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import './index.less';
 
-const HighLightItem = ({ key, className, highlightStr }) => (
-  <span key={key} className={className}>
-    {highlightStr}
+const HighLightItem = ({
+  key, className, highlightStr, color,
+}) => (
+  <span
+    key={key}
+    className={className}
+    style={{
+      color: highlightStr.highlightColor || color,
+      ...(highlightStr.style || {}),
+    }}
+  >
+    {typeof highlightStr.render === 'function'
+      ? highlightStr.render()
+      : highlightStr.keyword || highlightStr}
   </span>
 );
 HighLightItem.propTypes = {
   key: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
   className: PropTypes.string,
-  highlightStr: PropTypes.string,
+  highlightStr: PropTypes.oneOfType([
+    PropTypes.string,
+    PropTypes.arrayOf(
+      PropTypes.shape({
+        keyword: PropTypes.string,
+        highlightColor: PropTypes.string,
+        style: PropTypes.shape({}),
+        className: PropTypes.string,
+      }),
+    ),
+  ]),
+  color: PropTypes.string,
 };
 
 const processHighlightStr = (str = '') => {
@@ -41,25 +62,45 @@ const KeywordsHighlight = ({
   highlightClassName,
   normalClassName,
   regExpOption,
+  highlightColor,
+  normalColor,
 }) => {
   let key = 0;
   const elementArr = [];
-  if (keywords && keywords.length && keywords instanceof Array) {
-    if (keywords.filter(highlightStr => highlightStr !== '').length === 0) {
+  const newKeywords = keywords instanceof Array
+    ? keywords.filter(highlightStr => {
+      if (highlightStr && typeof highlightStr === 'object') {
+        return !!highlightStr.keyword;
+      }
+      if (typeof highlightStr === 'string') {
+        return !!highlightStr;
+      }
+      return false;
+    })
+    : keywords;
+  if (newKeywords instanceof Array) {
+    if (newKeywords.length === 0) {
       elementArr.push(
         <HighLightItem
           key={1}
-          highlightStr={keywords}
+          highlightStr={str}
           className={normalClassName}
+          color={normalColor}
         />,
       );
       return elementArr;
     }
     const regExp = new RegExp(
-      `(${keywords
-        .filter(highlightStr => highlightStr !== '')
-        .map(highlightStr => processHighlightStr(`${highlightStr}`))
-        .sort((strA, strB) => strB.length - strA.length)
+      `(${newKeywords
+        .map(highlightStr => processHighlightStr(
+          typeof highlightStr === 'object'
+            ? `${highlightStr.keyword}`
+            : `${highlightStr}`,
+        ))
+        .sort(
+          (strA, strB) => (typeof strB === 'object' ? strB.keyword.length : strB.length)
+            - (typeof strA === 'object' ? strA.keyword.length : strA.length),
+        )
         .join('|')})`,
       regExpOption,
     );
@@ -76,17 +117,22 @@ const KeywordsHighlight = ({
             key={key}
             className={normalClassName}
             highlightStr={str.substring(0, offsetMatch.index)}
+            color={normalColor}
           />,
         );
         key += 1;
       }
       const offset = offsetMatch.index;
       const matchText = offsetMatch[0];
+      const keywordItem = newKeywords.find(
+        keyItem => keyItem.keyword === matchText || keyItem === matchText,
+      );
       elementArr.push(
         <HighLightItem
           key={key}
           className={highlightClassName}
-          highlightStr={matchText}
+          highlightStr={keywordItem}
+          color={highlightColor}
         />,
       );
       key += 1;
@@ -97,6 +143,7 @@ const KeywordsHighlight = ({
             key={key}
             className={normalClassName}
             highlightStr={str.substring(offset + matchText.length, nextOffset)}
+            color={normalColor}
           />,
         );
       } else {
@@ -105,6 +152,7 @@ const KeywordsHighlight = ({
             key={key}
             className={normalClassName}
             highlightStr={str.substr(offset + matchText.length)}
+            color={normalColor}
           />,
         );
       }
@@ -112,6 +160,16 @@ const KeywordsHighlight = ({
     });
   } else {
     // keywords is String
+    if (!keywords) {
+      return (
+        <HighLightItem
+          key={1}
+          className={normalClassName}
+          highlightStr={str}
+          color={normalColor}
+        />
+      );
+    }
     const regExp = new RegExp(keywords, regExpOption);
     const strArr = str.split(regExp);
     strArr.forEach((item, index) => {
@@ -120,6 +178,7 @@ const KeywordsHighlight = ({
           key={key}
           className={normalClassName}
           highlightStr={item}
+          color={normalColor}
         />,
       );
       key += 1;
@@ -129,6 +188,7 @@ const KeywordsHighlight = ({
             key={key}
             className={highlightClassName}
             highlightStr={keywords}
+            color={highlightColor}
           />,
         );
         key += 1;
@@ -140,16 +200,32 @@ const KeywordsHighlight = ({
 
 KeywordsHighlight.propTypes = {
   str: PropTypes.string,
-  keywords: PropTypes.arrayOf(PropTypes.string),
+  keywords: PropTypes.arrayOf(
+    PropTypes.oneOfType([
+      PropTypes.string,
+      PropTypes.arrayOf(
+        PropTypes.shape({
+          keyword: PropTypes.string,
+          highlightColor: PropTypes.string,
+          style: PropTypes.shape({}),
+          className: PropTypes.string,
+          render: PropTypes.func,
+        }),
+      ),
+    ]),
+  ),
   highlightClassName: PropTypes.string,
   normalClassName: PropTypes.string,
   regExpOption: PropTypes.string,
+  highlightColor: PropTypes.string,
+  normalColor: PropTypes.string,
 };
 KeywordsHighlight.defaultProps = {
   str: '',
   keywords: [],
-  highlightClassName: 'highlight-str',
+  highlightClassName: '',
   normalClassName: '',
   regExpOption: 'gi',
+  highlightColor: '#00c1de',
 };
 export default KeywordsHighlight;
