@@ -10,6 +10,7 @@
   "license": "ISC",
   "dependencies": {
     "cool-cli": "^1.2.3",
+    "keywordhighlight": "^1.0.0",
     "react": "^16.8.6",
     "react-dom": "^16.8.6"
   }

@@ -1,8 +1,8 @@
 {
   "name": "keywordhighlight",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "一个可以把文本多个关键字高亮的react组件",
-  "main": "dist/index.js",
+  "main": "dist/main.js",
   "scripts": {
     "test": "cd ./test && cool-cli start",
     "build": "cool-cli build --bundleLibrary",
