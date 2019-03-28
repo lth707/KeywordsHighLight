@@ -3,33 +3,46 @@ import PropTypes from 'prop-types';
 
 const HighLightItem = ({
   key, className, highlightStr, color,
-}) => (
-  <span
-    key={key}
-    className={className}
-    style={{
-      color: highlightStr.highlightColor || color,
-      ...(highlightStr.style || {}),
-    }}
-  >
-    {typeof highlightStr.render === 'function'
-      ? highlightStr.render(highlightStr.keyword, highlightStr)
-      : highlightStr.keyword || highlightStr}
-  </span>
-);
+}) => {
+  let realColor = color;
+  let style = {};
+  let render = null;
+  let text = highlightStr;
+  if (highlightStr instanceof Array) {
+    if (typeof highlightStr[1] === 'string') [, realColor] = highlightStr;
+    else if (typeof highlightStr[1] === 'object') {
+      style = highlightStr[1] || {};
+    } else if (typeof highlightStr[1] === 'function') {
+      [, render] = highlightStr;
+    }
+    [text] = highlightStr;
+  }
+  return (
+    <span
+      key={key}
+      className={className}
+      style={{
+        color: realColor,
+        ...style,
+      }}
+    >
+      {render ? render(text) : text}
+    </span>
+  );
+};
 HighLightItem.propTypes = {
   key: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
   className: PropTypes.string,
   highlightStr: PropTypes.oneOfType([
     PropTypes.string,
-    PropTypes.arrayOf(
-      PropTypes.shape({
-        keyword: PropTypes.string,
-        highlightColor: PropTypes.string,
-        style: PropTypes.shape({}),
-        className: PropTypes.string,
-      }),
-    ),
+    PropTypes.arrayOf([
+      PropTypes.string,
+      PropTypes.oneOfType([
+        PropTypes.string,
+        PropTypes.func,
+        PropTypes.shape({}),
+      ]),
+    ]),
   ]),
   color: PropTypes.string,
 };
@@ -67,17 +80,39 @@ const KeywordsHighlight = ({
 }) => {
   let key = 0;
   const elementArr = [];
-  const newKeywords = keywords instanceof Array
-    ? keywords.filter(highlightStr => {
-      if (highlightStr && typeof highlightStr === 'object') {
-        return !!highlightStr.keyword;
-      }
-      if (typeof highlightStr === 'string') {
-        return !!highlightStr;
-      }
-      return false;
-    })
-    : keywords;
+  let newKeywords = keywords;
+  if (keywords instanceof Array) {
+    newKeywords = keywords
+      .filter(
+        keyword => keyword instanceof RegExp || keyword[0] instanceof RegExp,
+      )
+      .map(keyword => {
+        let reg = null;
+        if (keyword instanceof RegExp) {
+          reg = keyword;
+          return str.match(reg).filter(m => !!m) || [];
+        }
+        [reg] = keyword;
+        return (
+          str
+            .match(reg)
+            .filter(m => !!m)
+            .map(m => [m].concat([keyword[1]])) || []
+        );
+      })
+      .flat()
+      .concat(
+        keywords.filter(keyword => {
+          if (keyword instanceof Array && keyword.length === 2) {
+            return !!keyword[0];
+          }
+          if (typeof keyword === 'string') {
+            return !!keyword;
+          }
+          return false;
+        }),
+      );
+  }
   if (newKeywords instanceof Array) {
     if (newKeywords.length === 0) {
       elementArr.push(
@@ -93,13 +128,13 @@ const KeywordsHighlight = ({
     const regExp = new RegExp(
       `(${newKeywords
         .map(highlightStr => processHighlightStr(
-          typeof highlightStr === 'object'
-            ? `${highlightStr.keyword}`
+          highlightStr instanceof Array
+            ? `${highlightStr[0]}`
             : `${highlightStr}`,
         ))
         .sort(
-          (strA, strB) => (typeof strB === 'object' ? strB.keyword.length : strB.length)
-            - (typeof strA === 'object' ? strA.keyword.length : strA.length),
+          (strA, strB) => (strB instanceof Array ? strB[0].length : strB.length)
+            - (strA instanceof Array ? strA[0].length : strA.length),
         )
         .join('|')})`,
       regExpOption,
@@ -125,7 +160,7 @@ const KeywordsHighlight = ({
       const offset = offsetMatch.index;
       const matchText = offsetMatch[0];
       const keywordItem = newKeywords.find(
-        keyItem => keyItem.keyword === matchText || keyItem === matchText,
+        keyItem => keyItem === matchText || keyItem[0] === matchText,
       );
       elementArr.push(
         <HighLightItem
@@ -202,16 +237,15 @@ KeywordsHighlight.propTypes = {
   str: PropTypes.string,
   keywords: PropTypes.arrayOf(
     PropTypes.oneOfType([
-      PropTypes.string,
-      PropTypes.arrayOf(
-        PropTypes.shape({
-          keyword: PropTypes.string,
-          highlightColor: PropTypes.string,
-          style: PropTypes.shape({}),
-          className: PropTypes.string,
-          render: PropTypes.func,
-        }),
-      ),
+      PropTypes.oneOfType([PropTypes.string, PropTypes.instanceOf(RegExp)]),
+      PropTypes.arrayOf([
+        PropTypes.oneOfType([PropTypes.string, PropTypes.instanceOf(RegExp)]),
+        PropTypes.oneOfType([
+          PropTypes.string,
+          PropTypes.func,
+          PropTypes.shape({}),
+        ]),
+      ]),
     ]),
   ),
   highlightClassName: PropTypes.string,
