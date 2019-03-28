@@ -19,4 +19,4 @@ render(
 );
 ```
 # run effect
-https://github.com/lth707/KeywordsHighLight/blob/master/%E8%BF%90%E8%A1%8C%E6%95%88%E6%9E%9C.png
+![run effect](https://github.com/lth707/KeywordsHighLight/blob/master/%E8%BF%90%E8%A1%8C%E6%95%88%E6%9E%9C.png)
