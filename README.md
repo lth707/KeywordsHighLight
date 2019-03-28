@@ -29,7 +29,39 @@ render(
 );
 
 ```
-
+# params
+```jsx
+KeywordsHighlight.propTypes = {
+  str: PropTypes.string,
+  keywords: PropTypes.arrayOf(
+    PropTypes.oneOfType([
+      PropTypes.string,
+      PropTypes.arrayOf(
+        PropTypes.shape({
+          keyword: PropTypes.string,
+          highlightColor: PropTypes.string,
+          style: PropTypes.shape({}),
+          className: PropTypes.string,
+          render: PropTypes.func,
+        }),
+      ),
+    ]),
+  ),
+  highlightClassName: PropTypes.string,
+  normalClassName: PropTypes.string,
+  regExpOption: PropTypes.string,
+  highlightColor: PropTypes.string,
+  normalColor: PropTypes.string,
+};
+KeywordsHighlight.defaultProps = {
+  str: '',
+  keywords: [],
+  highlightClassName: '',
+  normalClassName: '',
+  regExpOption: 'gi',
+  highlightColor: '#00c1de',
+};
+```
 # run effect
 
 ![run effect](https://github.com/lth707/KeywordsHighLight/blob/master/%E8%BF%90%E8%A1%8C%E6%95%88%E6%9E%9C.png)
