@@ -20,7 +20,7 @@ render(
       ['查找', text => <span style={{ color: 'yellow' }}>{text}</span>],
       ['regexp', 'green'],
       ['$', { fontWeight: 700, color: 'red' }],
-      [/\d+/g, 'orange'],
+      [/\d+/, 'orange'],
     ]}
   />,
   document.getElementById('app')
@@ -31,15 +31,17 @@ render(
 
 ```jsx
  * str:为输入文本
- * keywords:是一个数组，数组元素可以是如下3种类型
-    1 string|RegExp：想要高亮的关键字或正则表达式。
-    2 [string|RegExp,string]:第一个元素为想要高亮的关键字或正则表达式，第二个元素为高亮颜色。
-    3 [string|RegExp,object]:第一个元素为想要高亮的关键字或正则表达式，第二个元素为高亮元素的style。
+ * keywords:是一个数组，数组元素可以是如下4种类型
+    1 string|RegExp：要高亮的关键字或正则表达式。
+    2 [string|RegExp,string]:第一个元素为要高亮的关键字或正则表达式，第二个元素为高亮颜色。
+    3 [string|RegExp,object]:第一个元素为要高亮的关键字或正则表达式，第二个元素为高亮元素的style。
+    3 [string|RegExp,fun]:第一个元素为要高亮的关键字或正则表达式，第二个元素高亮元素的render函数。
  * highlightClassName:高亮元素的全局类名。
  * normalClassName: 不高亮元素的全局类名。
  * highlightColor: 高亮元素的全局颜色。
  * normalColor: 不高亮元素的全局颜色。
- * regExpOption: 正则表达是的flags默认为gi。
+ * regExpOption: 正则表达式的flags,默认gi。
+ > 注意：RegExp不支持flags参数。
 ```
 
 # run effect

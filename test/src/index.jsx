@@ -9,9 +9,10 @@ render(
       /stringObject/,
       '替换',
       ['查找', text => <span style={{ color: 'yellow' }}>{text}</span>],
+      [/replacement|匹配/, text => <span style={{ color: 'gray' }}>{text}</span>],
       ['regexp', 'green'],
       ['$', { fontWeight: 700, color: 'red' }],
-      [/\d+/g, 'orange'],
+      [/\d+/, 'orange'],
     ]}
   />,
   document.getElementById('app'),

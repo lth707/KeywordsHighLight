@@ -83,34 +83,46 @@ const KeywordsHighlight = ({
   let newKeywords = keywords;
   if (keywords instanceof Array) {
     newKeywords = keywords
-      .filter(
-        keyword => keyword instanceof RegExp || keyword[0] instanceof RegExp,
-      )
-      .map(keyword => {
-        let reg = null;
-        if (keyword instanceof RegExp) {
-          reg = keyword;
-          return str.match(reg).filter(m => !!m) || [];
+      .filter(keyword => {
+        const reg = keyword instanceof Array ? keyword[0] : keyword;
+        if (reg instanceof RegExp) {
+          const newReg = new RegExp(
+            reg.source,
+            `${reg.flags}${reg.flags.indexOf('g') > -1 ? '' : 'g'}`,
+          );
+          const firstIndex = (newReg.exec(str) || {}).index;
+          const secondIndex = (newReg.exec(str) || {}).index;
+          return firstIndex !== undefined && firstIndex !== secondIndex;
         }
-        [reg] = keyword;
-        return (
-          str
-            .match(reg)
-            .filter(m => !!m)
-            .map(m => [m].concat([keyword[1]])) || []
-        );
+        return false;
       })
-      .flat()
+      .map(keyword => {
+        if (keyword instanceof RegExp) {
+          return keyword.source;
+        }
+        return [keyword[0].source, keyword[1]];
+      })
       .concat(
-        keywords.filter(keyword => {
-          if (keyword instanceof Array && keyword.length === 2) {
-            return !!keyword[0];
-          }
-          if (typeof keyword === 'string') {
-            return !!keyword;
-          }
-          return false;
-        }),
+        keywords
+          .filter(keyword => {
+            if (keyword instanceof Array && keyword.length === 2) {
+              return !!keyword[0] && !(keyword[0] instanceof RegExp);
+            }
+            if (typeof keyword === 'string') {
+              return !!keyword;
+            }
+            return false;
+          })
+          .map(keyword => {
+            if (keyword instanceof Array) {
+              return [processHighlightStr(`${keyword[0]}`), keyword[1]];
+            }
+            return processHighlightStr(keyword);
+          })
+          .sort(
+            (strA, strB) => (strB instanceof Array ? strB[0].length : strB.length)
+              - (strA instanceof Array ? strA[0].length : strA.length),
+          ),
       );
   }
   if (newKeywords instanceof Array) {
@@ -127,15 +139,12 @@ const KeywordsHighlight = ({
     }
     const regExp = new RegExp(
       `(${newKeywords
-        .map(highlightStr => processHighlightStr(
-          highlightStr instanceof Array
-            ? `${highlightStr[0]}`
-            : `${highlightStr}`,
-        ))
-        .sort(
-          (strA, strB) => (strB instanceof Array ? strB[0].length : strB.length)
-            - (strA instanceof Array ? strA[0].length : strA.length),
-        )
+        .map(keyword => {
+          if (keyword instanceof Array) {
+            return `${keyword[0]}`;
+          }
+          return `${keyword}`;
+        })
         .join('|')})`,
       regExpOption,
     );
@@ -159,14 +168,20 @@ const KeywordsHighlight = ({
       }
       const offset = offsetMatch.index;
       const matchText = offsetMatch[0];
-      const keywordItem = newKeywords.find(
-        keyItem => keyItem === matchText || keyItem[0] === matchText,
-      );
+      const keywordItem = newKeywords.find(keyItem => {
+        const item = keyItem instanceof Array ? keyItem[0] : keyItem;
+        const newReg = new RegExp(item);
+        return item === matchText || newReg.test(matchText);
+      });
       elementArr.push(
         <HighLightItem
           key={key}
           className={highlightClassName}
-          highlightStr={keywordItem}
+          highlightStr={
+            keywordItem instanceof Array
+              ? [matchText, keywordItem[1]]
+              : matchText
+          }
           color={highlightColor}
         />,
       );
