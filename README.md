@@ -1,9 +1,8 @@
 # KeywordsHighLight
 
 > 多关键字高亮的 react 组件，正则关键字也能高亮
-
+> npm address [keywordhighlight](https://www.npmjs.com/package/keywordhighlight "keywordhighlight")
 # How To Use
-
 npm install -S keywordhighlight
 
 ```jsx
@@ -36,7 +35,7 @@ render(
     1 string|RegExp：要高亮的关键字或正则表达式。
     2 [string|RegExp,string]:第一个元素为要高亮的关键字或正则表达式，第二个元素为高亮颜色。
     3 [string|RegExp,object]:第一个元素为要高亮的关键字或正则表达式，第二个元素为高亮元素的style。
-    3 [string|RegExp,fun]:第一个元素为要高亮的关键字或正则表达式，第二个元素高亮元素的render函数。
+    4 [string|RegExp,fun]:第一个元素为要高亮的关键字或正则表达式，第二个元素高亮元素的render函数。
  * highlightClassName:高亮元素的全局类名。
  * normalClassName: 不高亮元素的全局类名。
  * highlightColor: 高亮元素的全局颜色。
