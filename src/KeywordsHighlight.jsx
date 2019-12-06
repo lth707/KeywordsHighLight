@@ -154,6 +154,16 @@ const KeywordsHighlight = ({
       offsetMatches.push(match);
       match = regExp.exec(str);
     }
+    if (offsetMatches.length === 0) {
+      return (
+        <HighLightItem
+          key={1}
+          className={normalClassName}
+          highlightStr={str}
+          color={normalColor}
+        />
+      );
+    }
     offsetMatches.forEach((offsetMatch, index) => {
       if (index === 0) {
         elementArr.push(
@@ -222,6 +232,16 @@ const KeywordsHighlight = ({
     }
     const regExp = new RegExp(keywords, regExpOption);
     const strArr = str.split(regExp);
+    if (strArr.length === 0) {
+      return (
+        <HighLightItem
+          key={1}
+          className={normalClassName}
+          highlightStr={str}
+          color={normalColor}
+        />
+      );
+    }
     strArr.forEach((item, index) => {
       elementArr.push(
         <HighLightItem
